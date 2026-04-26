@@ -18,3 +18,8 @@ received/*.txt
 # OS/editor files
 .DS_Store
 Thumbs.db
+
+# C build artifacts
+*.exe
+sender
+receiver
