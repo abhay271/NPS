@@ -1,0 +1,20 @@
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Runtime artifacts
+keys/*.pem
+dh_state/*.bin
+dh_state/*.txt
+output/*.png
+output/*.txt
+received/*.png
+received/*.txt
+
+# OS/editor files
+.DS_Store
+Thumbs.db
