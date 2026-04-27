@@ -18,6 +18,7 @@
 - [Phase 5 — Flask API Middleware](#phase-5--flask-api-middleware)
 - [Phase 6 — Frontend UI](#phase-6--frontend-ui)
 - [Phase 7 — Full System Run](#phase-7--full-system-run)
+- [Phase 8 — Dual Frontend UX Plan](#phase-8--dual-frontend-ux-plan)
 - [Protocol Specification](#protocol-specification)
 - [Troubleshooting](#troubleshooting)
 
@@ -776,6 +777,168 @@ cd frontend && python3 -m http.server 3000
 5. Watch the encryption visualizer animate: plaintext → RSA cipher → AES cipher
 6. Watch the steganography visualizer: original vs stego image + pixel bit grid
 7. Watch the receiver panel: hash verified ✅ + decrypted message typewriter reveal
+
+---
+
+## Phase 8 — Dual Frontend UX Plan
+
+This phase is a **planning-only phase**. No core backend logic changes are required in this step.
+The goal is to deliver a high-quality demo experience with **two polished frontends**:
+- Sender Dashboard (control + encryption flow)
+- Receiver Dashboard (live receive + verify + decrypt)
+
+### Goals
+
+1. Add richer transfer progress phases in UI:
+   - Handshake → Encrypt → Embed → Transfer → Verify → Decrypt
+2. Show live transfer ETA and speed chart instead of only final speed text.
+3. Add pixel-diff mode toggle:
+   - Sample view (existing table)
+   - Full summary view (total changed channels/pixels, max delta, mean delta)
+4. Add a before/after image slider for Cover vs Stego comparison.
+5. Add export actions:
+   - Download stego image
+   - Export full run report as JSON
+6. Add a separate receiver-only frontend page to open in another browser window for teaching/demo.
+7. Add chunk-by-chunk image arrival visualization in the receiver view.
+8. Keep sender and receiver views synchronized from the same backend state.
+
+### Scope and Deliverables
+
+#### Deliverable A: Progress Timeline + Transfer Telemetry
+
+- Add a horizontal phase timeline with six states: pending, active, complete, error.
+- Parse logs/status to move phase state in real-time.
+- Add rolling transfer speed chart (last N samples, e.g., 60 points).
+- Show ETA derived from:
+  - bytes_sent / elapsed_time = throughput
+  - remaining_bytes / throughput = ETA
+
+#### Deliverable B: Receiver Chunk-by-Chunk Visual Arrival
+
+- Show incoming chunk progression in receiver dashboard in real time.
+- Render a chunk heatmap/grid for total_chunks where each block changes state:
+  - pending
+  - received
+  - error/retry (if implemented later)
+- Add a progressive image reveal mode so stego preview appears as transfer advances.
+- Show receiver-side counters clearly:
+  - current_chunk / total_chunks
+  - received_bytes / total_bytes
+  - live throughput and ETA
+
+#### Deliverable C: Pixel-Diff Modes
+
+- Keep existing sample table as default for readability.
+- Add mode toggle buttons:
+  - Sample
+  - Full Summary
+- Full Summary should display:
+  - changed_channels
+  - total_channels
+  - changed_pixels
+  - total_pixels
+  - max_delta (expected to stay 1 for LSB)
+  - mean_delta
+- Compute summary in backend endpoint to avoid heavy client-side image loops.
+
+#### Deliverable D: Before/After Slider
+
+- Replace or complement side-by-side canvases with an overlay slider component.
+- Base layer: original cover image.
+- Top layer: stego image with adjustable reveal handle.
+- Keep side-by-side mode as fallback for small screens.
+
+#### Deliverable E: Export Tools
+
+- Add button: Download Stego PNG.
+- Add button: Export Report JSON.
+- Report JSON fields:
+  - timestamp
+  - original_message (or masked version if desired)
+  - sha256_expected
+  - sha256_actual
+  - hash_verified
+  - chunks_sent
+  - total_chunks
+  - elapsed_seconds
+  - kb_per_second
+  - changed_channels
+  - changed_pixels
+
+#### Deliverable F: Receiver-Only Frontend (New Window)
+
+- Create a separate receiver view page for demonstration in a new browser tab/window.
+- Sender controls are excluded from this view.
+- Receiver view should include:
+  - live socket log feed
+  - progress bar + phases
+  - chunk heatmap/grid and progressive arrival visualization
+  - hash verification block
+  - decrypted message panel
+  - stego image and pixel-diff summary
+- Suggested files:
+  - frontend/receiver.html
+  - frontend/receiver.js
+  - shared styles reused from existing style.css where possible
+
+#### Deliverable G: Sender Dashboard Polish
+
+- Keep sender page focused on authoring and transmission controls.
+- Add clear transmit lifecycle states:
+  - ready
+  - transmitting
+  - completed
+  - error
+- Keep encryption visualization and cover-image controls on sender page only.
+- Add quick action buttons:
+  - retransmit last payload
+  - copy diagnostics
+  - export report JSON
+
+### API Additions Planned (Non-breaking)
+
+Add optional fields to existing API responses without changing current behavior:
+
+1. GET /api/status
+   - phase
+   - bytes_sent
+   - total_bytes
+   - elapsed_seconds
+   - kb_per_second
+   - eta_seconds
+  - current_chunk
+  - total_chunks
+  - receiver_chunk_map (optional compact representation)
+2. GET /api/result
+   - pixel_diff_summary object:
+     - changed_channels
+     - total_channels
+     - changed_pixels
+     - total_pixels
+     - max_delta
+     - mean_delta
+
+### Implementation Order
+
+1. Add API telemetry fields and pixel summary fields.
+2. Implement timeline + live speed chart + ETA in existing frontend.
+3. Implement receiver chunk-map + progressive image arrival visualization.
+4. Build receiver-only frontend page and validate in separate window.
+5. Add pixel-diff mode toggle and full summary cards.
+6. Add before/after slider component.
+7. Add download/export buttons and report export.
+8. Polish sender dashboard interactions and state messaging.
+
+### Acceptance Criteria
+
+1. Existing sender flow remains fully functional.
+2. All new fields are additive and do not break current endpoints.
+3. Receiver-only page can be opened directly in a separate window and updates live.
+4. Receiver dashboard visibly shows chunk-by-chunk receive progress and completion.
+5. Exported JSON report matches displayed values.
+6. Large-image transfer still works with responsive UI updates.
+7. One end-to-end run demonstrates all new UI elements successfully.
 
 ---
 
