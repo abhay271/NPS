@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Covert Comms</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <main class="shell">
+    <header class="panel active" id="headerPanel">
+      <h1>SECURE COVERT COMMS</h1>
+      <p>Diffie-Hellman • RSA-2048 • AES-256-CBC • LSB Steganography • SHA-256</p>
+    </header>
+
+    <section class="grid-two">
+      <article class="panel dimmable" id="senderPanel">
+        <h2>Sender</h2>
+        <label for="messageInput">Secret Message</label>
+        <textarea id="messageInput" placeholder="Enter your secret message..."></textarea>
+
+        <label for="imageInput">Cover Image (optional)</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <div class="thumb-wrap">
+          <img id="uploadPreview" alt="Uploaded image preview" />
+        </div>
+
+        <button id="transmitBtn">TRANSMIT</button>
+      </article>
+
+      <article class="panel dimmable" id="receiverPanel">
+        <h2>Receiver</h2>
+        <div class="placeholder" id="receiverPlaceholder">Awaiting transmission...</div>
+
+        <div class="hidden" id="receiverData">
+          <img id="receiverStegoImg" alt="Received stego" />
+
+          <div class="hash-box">
+            <div>Expected: <span id="hashExpected">-</span></div>
+            <div>Actual: <span id="hashActual">-</span></div>
+            <span id="hashBadge" class="badge">PENDING</span>
+          </div>
+
+          <div class="message-box">
+            <h3>Decrypted Message</h3>
+            <p id="decryptedMessage"></p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel dimmable" id="encryptionPanel">
+      <h2>Encryption Visualizer</h2>
+      <div class="encrypt-flow">
+        <div class="enc-box" id="boxPlain">
+          <h3>PLAINTEXT</h3>
+          <pre id="plainTextValue">-</pre>
+          <button class="copy-btn" data-copy-target="plainTextValue">COPY</button>
+        </div>
+        <span class="arrow">▶</span>
+        <div class="enc-box" id="boxRsa">
+          <h3>RSA ENCRYPTED</h3>
+          <pre id="rsaValue">-</pre>
+          <button class="copy-btn" data-copy-target="rsaFull">COPY</button>
+        </div>
+        <span class="arrow">▶</span>
+        <div class="enc-box" id="boxAes">
+          <h3>AES ENCRYPTED</h3>
+          <pre id="aesValue">-</pre>
+          <button class="copy-btn" data-copy-target="aesFull">COPY</button>
+        </div>
+      </div>
+      <textarea id="rsaFull" class="sr-only" aria-hidden="true"></textarea>
+      <textarea id="aesFull" class="sr-only" aria-hidden="true"></textarea>
+    </section>
+
+    <section class="panel dimmable" id="stegPanel">
+      <h2>Steganography Visualizer</h2>
+      <div class="canvas-grid">
+        <div>
+          <h3>ORIGINAL</h3>
+          <canvas id="originalCanvas" width="320" height="200"></canvas>
+        </div>
+        <div>
+          <h3>STEGO</h3>
+          <canvas id="stegoCanvas" width="320" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pixel #</th>
+              <th>Channel</th>
+              <th>Original bits</th>
+              <th>Stego bits</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody id="pixelDiffBody"></tbody>
+        </table>
+      </div>
+      <p class="caption">LSB steganography changes pixel values by ±1 - visually identical to human eye</p>
+    </section>
+
+    <section class="panel dimmable" id="socketPanel">
+      <h2>Socket Live Feed</h2>
+      <div id="terminalLog" class="terminal"></div>
+
+      <div class="progress-row">
+        <div class="progress-track">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText">Chunk 0/0 - 0%</div>
+      </div>
+
+      <div id="statsRow" class="stats">0 bytes transferred · 0 KB/s · 0s</div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
